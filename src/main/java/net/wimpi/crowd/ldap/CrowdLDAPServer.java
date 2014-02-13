@@ -301,8 +301,17 @@ public class CrowdLDAPServer {
   public void startServer() throws Exception {
     server = new LdapServer();
     int serverPort = Integer.parseInt(m_ServerConfig.getProperty(CONFIG_KEY_PORT,"10389"));
+    String serverAddress = m_ServerConfig.getProperty(CONFIG_KEY_ADDRESS);
+    if (serverAddress != null && serverAddress.trim().length() == 0) {
+      serverAddress = null;
+    }
 
-    Transport t = new TcpTransport(serverPort);
+    Transport t;
+    if (serverAddress == null) {
+      t = new TcpTransport(serverPort);
+    } else {
+      t = new TcpTransport(serverAddress, serverPort);
+    }
 
     //SSL Support
     boolean sslEnabled = Boolean.parseBoolean(m_ServerConfig.getProperty(CONFIG_KEY_SSLENABLE,"false"));
@@ -365,6 +374,7 @@ public class CrowdLDAPServer {
 
 
   private static final String CONFIG_KEY_PORT = "listener.port";
+  private static final String CONFIG_KEY_ADDRESS = "listener.address";
   private static final String CONFIG_KEY_SSLENABLE = "ssl.enabled";
 
   private static final String CONFIG_KEY_KEYSTORE = "ssl.keystore";
